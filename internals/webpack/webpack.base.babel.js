@@ -5,14 +5,27 @@
 const path = require('path');
 const webpack = require('webpack');
 
+const nodeExternals = require('webpack-node-externals');
+const LoadablePlugin = require('@loadable/webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+
+const AssetsPlugin = require('assets-webpack-plugin');
+const assetsPluginInstance = new AssetsPlugin({
+  path: path.join(process.cwd(), 'server', 'middlewares'),
+  filename: 'generated.assets.json',
+});
+
 module.exports = options => ({
   mode: options.mode,
   entry: options.entry,
+  externals:
+  options.target === 'node' ? ['@loadable/component', nodeExternals()] : undefined,
   output: Object.assign(
     {
       // Compile into js/build.js
       path: path.resolve(process.cwd(), 'build'),
       publicPath: '/',
+      libraryTarget: options.target === 'node' ? 'commonjs2' : undefined,
     },
     options.output,
   ), // Merge with env dependent settings
@@ -20,11 +33,10 @@ module.exports = options => ({
   module: {
     rules: [
       {
-        test: /\.jsx?$/, // Transform all .js and .jsx files required somewhere with Babel
+        test: /\.js$/, // Transform all .js files required somewhere with Babel
         exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
-          options: options.babelQuery,
         },
       },
       {
@@ -33,7 +45,9 @@ module.exports = options => ({
         // for a list of loaders, see https://webpack.js.org/loaders/#styling
         test: /\.css$/,
         exclude: /node_modules/,
-        use: ['style-loader', 'css-loader'],
+        use: [{
+          loader: MiniCssExtractPlugin.loader,
+        }, 'css-loader'],
       },
       {
         // Preprocess 3rd party .css files located in node_modules
@@ -61,12 +75,19 @@ module.exports = options => ({
       {
         test: /\.(jpg|png|gif)$/,
         use: [
+          // {
+          //   loader: 'url-loader',
+          //   options: {
+          //     // Inline files smaller than 10 kB
+          //     limit: 10 * 1024,
+          //   },
+          // },
           {
-            loader: 'url-loader',
-            options: {
-              // Inline files smaller than 10 kB
-              limit: 10 * 1024,
-            },
+            loader: 'file-loader',
+            // options: {
+            //   // Inline files smaller than 10 kB
+            //   limit: 10 * 1024,
+            // },
           },
           {
             loader: 'image-webpack-loader',
@@ -111,9 +132,14 @@ module.exports = options => ({
     // Always expose NODE_ENV to webpack, in order to use `process.env.NODE_ENV`
     // inside your code for any environment checks; Terser will automatically
     // drop any unreachable code.
+    // new webpack.ProvidePlugin({
+    //   // make fetch available
+    //   fetch: 'exports-loader?self.fetch!unfetch',
+    // }),
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'development',
     }),
+    new LoadablePlugin(), new webpack.NamedModulesPlugin(), new MiniCssExtractPlugin(), assetsPluginInstance
   ]),
   resolve: {
     modules: ['node_modules', 'app'],

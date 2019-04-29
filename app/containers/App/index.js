@@ -7,9 +7,16 @@
  */
 
 import React from 'react';
+import { renderRoutes } from 'react-router-config';
 import { Helmet } from 'react-helmet';
 import styled from 'styled-components';
 import { Switch, Route } from 'react-router-dom';
+
+import injectSaga from 'utils/injectSaga';// for making of the global dynamic saga
+import { compose } from 'redux';
+import { DAEMON } from 'utils/constants';
+import saga from './sagas';
+const withSaga = injectSaga({ key: 'App', saga, mode: DAEMON });
 
 import HomePage from 'containers/HomePage/Loadable';
 import FeaturePage from 'containers/FeaturePage/Loadable';
@@ -28,7 +35,7 @@ const AppWrapper = styled.div`
   flex-direction: column;
 `;
 
-export default function App() {
+const App = ({route}) => {
   return (
     <AppWrapper>
       <Helmet
@@ -38,13 +45,15 @@ export default function App() {
         <meta name="description" content="A React.js Boilerplate application" />
       </Helmet>
       <Header />
-      <Switch>
-        <Route exact path="/" component={HomePage} />
-        <Route path="/features" component={FeaturePage} />
-        <Route path="" component={NotFoundPage} />
-      </Switch>
+      {renderRoutes(route.routes)}
       <Footer />
       <GlobalStyle />
     </AppWrapper>
   );
 }
+
+export default {
+  component: compose(
+    withSaga,
+  )(App),
+};

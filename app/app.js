@@ -16,6 +16,7 @@ import { ConnectedRouter } from 'connected-react-router';
 import FontFaceObserver from 'fontfaceobserver';
 import history from 'utils/history';
 import 'sanitize.css/sanitize.css';
+import { loadableReady } from '@loadable/component'
 
 // Import root app
 import App from 'containers/App';
@@ -32,6 +33,9 @@ import configureStore from './configureStore';
 // Import i18n messages
 import { translationMessages } from './i18n';
 
+import renderInBrowser from './renderInBrowser';
+import Routes from './routes';
+
 // Observe loading of Open Sans (to remove open sans, remove the <link> tag in
 // the index.html file and this observer)
 const openSansObserver = new FontFaceObserver('Open Sans', {});
@@ -46,18 +50,14 @@ const initialState = {};
 const store = configureStore(initialState, history);
 const MOUNT_NODE = document.getElementById('app');
 
-const render = messages => {
-  ReactDOM.render(
-    <Provider store={store}>
-      <LanguageProvider messages={messages}>
-        <ConnectedRouter history={history}>
-          <App />
-        </ConnectedRouter>
-      </LanguageProvider>
-    </Provider>,
-    MOUNT_NODE,
-  );
-};
+loadableReady(() => {
+  renderInBrowser({ messages, store, Routes, history });
+});
+
+function render() {
+  renderInBrowser({ messages, store, Routes, history });
+}
+
 
 if (module.hot) {
   // Hot reloadable React components and translation json files

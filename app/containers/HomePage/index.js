@@ -132,7 +132,8 @@ const withConnect = connect(
   mapDispatchToProps,
 );
 
-export default compose(
+export default {
+  component: compose(
   withConnect,
   memo,
-)(HomePage);
+)(HomePage)};

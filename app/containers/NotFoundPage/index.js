@@ -10,7 +10,7 @@ import { FormattedMessage } from 'react-intl';
 import H1 from 'components/H1';
 import messages from './messages';
 
-export default function NotFound() {
+const FeaturePage = () => {
   return (
     <article>
       <H1>
@@ -18,4 +18,8 @@ export default function NotFound() {
       </H1>
     </article>
   );
+}
+
+export default {
+  component: FeaturePage,
 }

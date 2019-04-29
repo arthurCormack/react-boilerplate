@@ -13,7 +13,7 @@ import List from './List';
 import ListItem from './ListItem';
 import ListItemTitle from './ListItemTitle';
 
-export default function FeaturePage() {
+const FeaturePage = () => {
   return (
     <div>
       <Helmet>
@@ -74,4 +74,8 @@ export default function FeaturePage() {
       </List>
     </div>
   );
+}
+
+export default {
+  component: FeaturePage,
 }

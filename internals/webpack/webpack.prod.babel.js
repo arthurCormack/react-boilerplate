@@ -1,13 +1,13 @@
 // Important modules this config uses
 const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+// const HtmlWebpackPlugin = require('html-webpack-plugin');
 const WebpackPwaManifest = require('webpack-pwa-manifest');
 const OfflinePlugin = require('offline-plugin');
 const { HashedModuleIdsPlugin } = require('webpack');
 const TerserPlugin = require('terser-webpack-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
 
-module.exports = require('./webpack.base.babel')({
+const clientConfig  = require('./webpack.base.babel')({
   mode: 'production',
 
   // In production, we skip all hot-reloading stuff
@@ -67,22 +67,22 @@ module.exports = require('./webpack.base.babel')({
 
   plugins: [
     // Minify and optimize the index.html
-    new HtmlWebpackPlugin({
-      template: 'app/index.html',
-      minify: {
-        removeComments: true,
-        collapseWhitespace: true,
-        removeRedundantAttributes: true,
-        useShortDoctype: true,
-        removeEmptyAttributes: true,
-        removeStyleLinkTypeAttributes: true,
-        keepClosingSlash: true,
-        minifyJS: true,
-        minifyCSS: true,
-        minifyURLs: true,
-      },
-      inject: true,
-    }),
+    // new HtmlWebpackPlugin({
+    //   template: 'app/index.html',
+    //   minify: {
+    //     removeComments: true,
+    //     collapseWhitespace: true,
+    //     removeRedundantAttributes: true,
+    //     useShortDoctype: true,
+    //     removeEmptyAttributes: true,
+    //     removeStyleLinkTypeAttributes: true,
+    //     keepClosingSlash: true,
+    //     minifyJS: true,
+    //     minifyCSS: true,
+    //     minifyURLs: true,
+    //   },
+    //   inject: true,
+    // }),
 
     // Put it in the end to capture all the HtmlWebpackPlugin's
     // assets manipulations and do leak its manipulations to HtmlWebpackPlugin
@@ -116,12 +116,14 @@ module.exports = require('./webpack.base.babel')({
     }),
 
     new WebpackPwaManifest({
-      name: 'React Boilerplate',
-      short_name: 'React BP',
-      description: 'My React Boilerplate-based project!',
+      name: 'Hyperbole Boilerplate',
+      short_name: 'Hyperbole BP',
+      description: 'My Hyperbole Boilerplate-based project!',
       background_color: '#fafafa',
       theme_color: '#b1624d',
-      inject: true,
+      inject: false,
+      includeDirectory: true,
+      publicPath: null,
       ios: true,
       icons: [
         {
@@ -135,7 +137,7 @@ module.exports = require('./webpack.base.babel')({
         },
       ],
     }),
-
+   
     new HashedModuleIdsPlugin({
       hashFunction: 'sha256',
       hashDigest: 'hex',
@@ -148,3 +150,7 @@ module.exports = require('./webpack.base.babel')({
       !/(\.map$)|(^(main\.|favicon\.))/.test(assetFilename),
   },
 });
+
+const serverConfig = require('./webpack.ssr.prod.babel');
+
+module.exports = [clientConfig, serverConfig];
